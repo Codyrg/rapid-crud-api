@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "classifications": [
+        "Web",
+        "WebAPI",
+        "Clean"
+    ],
+    "identity": "CrudWebApi",
+    "name": "Crud Web API",
+    "shortName": "crudwebapi",
+    "preferNameDirectory": true,
+    "sourceName": "BaseApi",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    }
+}
