@@ -34,11 +34,11 @@ public class AuthorizerService
         _logger.LogDebug($"API key authorized: { apiKey }");
     }
 
-    public Guid CreateApiKey(string name)
+    public async Task<Guid> CreateApiKey(string name)
     {
         var apiKey = Guid.NewGuid();
         _repository.Add(new ApiKey(apiKey, name));
-        _repository.SaveChangesAsync();
+        await _repository.SaveChangesAsync();
         return apiKey;
     }
 

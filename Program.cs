@@ -57,7 +57,7 @@ var app = builder.Build();
 app.MapGet("/", () => new { data = new { message = "Hello World!" } });
 
 // Routes for managing API keys
-app.MapAuthorizedPost("api/keys", ([FromBody] string name, [FromServices] AuthorizerService authorizer) => authorizer.CreateApiKey(name));
-app.MapAuthorizedDelete("api/keys/{key}", ([FromRoute] string key, [FromServices] AuthorizerService authorizer) => authorizer.DeleteApiKey(key));
+app.MapAuthorizedPost("api/keys", async ([FromBody] string name, [FromServices] AuthorizerService authorizer) => await authorizer.CreateApiKey(name));
+app.MapAuthorizedDelete("api/keys/{key}", async ([FromRoute] string key, [FromServices] AuthorizerService authorizer) => await authorizer.DeleteApiKey(key));
 
 app.Run("http://localhost:80");
