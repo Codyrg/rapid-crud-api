@@ -24,12 +24,20 @@ var level = Environment.GetEnvironmentVariable("LOG_LEVEL")?.ToLower() switch
     "trace" => LogLevel.Trace,
     _ => LogLevel.None,
 };
-if(level != LogLevel.None)
+if(level == LogLevel.None)
     throw new ArgumentException("Invalid log level. Please provide a valid log level using the LOG_LEVEL environment variable. Valid values are Debug, Information, Warning, Error, Critical.");
 builder.Logging.SetMinimumLevel(level);
 
 // Set up database
-builder.Services.AddDbContext<Database>(options => options.UseSqlite("Data Source=mydb.db"));
+var fileRoot = Environment.GetEnvironmentVariable("FILE_ROOT");
+if(string.IsNullOrEmpty(fileRoot))
+    throw new ArgumentException("Invalid file root. Please provide a valid file root using the FILE_ROOT environment variable.");
+if(!Directory.Exists(fileRoot))
+    Console.WriteLine($"Creating file root at {fileRoot}");
+    Directory.CreateDirectory(fileRoot);
+var databaseFilePath = $"{fileRoot}\\database.db";
+var connectionString = $"Data Source={fileRoot}\\database.db";
+builder.Services.AddDbContext<Database>(options => options.UseSqlite($"{connectionString}"));
 builder.Services.AddGenericRepository<Database>();
 
 // Set up authorization service
@@ -60,4 +68,8 @@ app.MapGet("/", () => new { data = new { message = "Hello World!" } });
 app.MapAuthorizedPost("api/keys", async ([FromBody] string name, [FromServices] AuthorizerService authorizer) => await authorizer.CreateApiKey(name));
 app.MapAuthorizedDelete("api/keys/{key}", async ([FromRoute] string key, [FromServices] AuthorizerService authorizer) => await authorizer.DeleteApiKey(key));
 
-app.Run("http://localhost:80");
+var port = Environment.GetEnvironmentVariable("PORT");
+if(string.IsNullOrEmpty(port))
+    port = "80";
+Console.WriteLine($"Using port {port}");
+app.Run($"http://localhost:{port}");
