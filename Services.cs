@@ -34,6 +34,11 @@ public class AuthorizerService
         _logger.LogDebug($"API key authorized: { apiKey }");
     }
 
+    public async Task<IEnumerable<ApiKey>> GetApiKeys()
+    {
+        return await _repository.GetListAsync<ApiKey>();
+    }
+
     public async Task<Guid> CreateApiKey(string name)
     {
         var apiKey = Guid.NewGuid();
@@ -42,18 +47,15 @@ public class AuthorizerService
         return apiKey;
     }
 
-    public async Task DeleteApiKey(string apiKey)
+    public async Task DeleteApiKey(string name)
     {
-        if(!Guid.TryParse(apiKey, out var key))
-            throw new Exception("Invalid API key. Key must be a valid GUID.");
-        await DeleteApiKey(key);
-    }
+        if(string.IsNullOrEmpty(name))
+            throw new Exception("Invalid API key name. Name cannot be empty.");
 
-    public async Task DeleteApiKey(Guid apiKey)
-    {
-        var key = await _repository.GetByIdAsync<ApiKey>(apiKey);
+        var key = await _repository.GetAsync<ApiKey>(x => x.Name == name);
         if(key == null)
-            throw new Exception("Invalid API key. Key does not exist.");
+            throw new Exception("Invalid API key name. Name does not exist.");
+
         _repository.Remove(key);
         await _repository.SaveChangesAsync();
     }
